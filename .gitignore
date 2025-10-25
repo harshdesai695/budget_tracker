@@ -1,0 +1,85 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code related
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Firebase configuration files
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+database-debug.log
+pubsub-debug.log
+
+# Environment files
+.env
+.env.*
+env.g.dart
+
+# Key files and certificates
+*.jks
+*.keystore
+*.p12
+*.key
+*.mobileprovision
+*.provisionprofile
+key.properties
+
+# Generated files
+*.freezed.dart
+*.g.dart
+*.gr.dart
+*.config.dart
+*.mocks.dart
+
+# Local development files
+local_secrets.dart
+debug_config.dart
