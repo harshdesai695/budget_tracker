@@ -6,25 +6,24 @@ import 'package:intl/intl.dart';
 class BudgetEntryTile extends StatelessWidget {
   final BudgetEntry entry;
   final Category category;
-  final VoidCallback onDismissed; // <-- ADDED: For swipe-to-delete
-  final VoidCallback onTap; // <-- ADDED: For editing
+  final VoidCallback onDismissed;
+  final VoidCallback onTap;
 
   const BudgetEntryTile({
     super.key,
     required this.entry,
     required this.category,
-    required this.onDismissed, // <-- ADDED
-    required this.onTap, // <-- ADDED
+    required this.onDismissed,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // --- WRAPPED with Dismissible ---
     return Dismissible(
-      key: Key(entry.id), // Unique key for the dismissible
-      direction: DismissDirection.endToStart, // Swipe from right-to-left
-      onDismissed: (direction) {
-        onDismissed(); // Call the delete callback
+      key: Key(entry.id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) {
+        onDismissed();
       },
       background: Container(
         color: Colors.red,
@@ -36,21 +35,18 @@ class BudgetEntryTile extends StatelessWidget {
         elevation: 2,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Container(
-          // This container adds the colored border on the left
           decoration: BoxDecoration(
             border: Border(
               left: BorderSide(color: category.color, width: 5),
             ),
-            borderRadius: BorderRadius.circular(12), // Card's default is 12
+            borderRadius: BorderRadius.circular(12),
           ),
-          // --- UPDATED ListTile ---
           child: ListTile(
             title: Text(
               entry.itemName,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              // Format the date nicely
               DateFormat.yMMMd().format(entry.timestamp.toDate()),
             ),
             trailing: Text(
@@ -61,12 +57,10 @@ class BudgetEntryTile extends StatelessWidget {
                 color: Colors.redAccent,
               ),
             ),
-            onTap: onTap, // Call the edit callback when tapped
+            onTap: onTap,
           ),
-          // --- END OF UPDATED ListTile ---
         ),
       ),
     );
-    // --- END OF Dismissible ---
   }
 }

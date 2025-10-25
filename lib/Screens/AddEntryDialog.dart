@@ -5,13 +5,9 @@ import 'package:flutter/material.dart';
 
 class AddEntryDialog extends StatefulWidget {
   final List<Category> categories;
-  final BudgetEntry? entryToEdit; // <-- ADDED: To accept an entry for editing
+  final BudgetEntry? entryToEdit;
 
-  const AddEntryDialog({
-    super.key,
-    required this.categories,
-    this.entryToEdit, // <-- ADDED
-  });
+  const AddEntryDialog({super.key, required this.categories, this.entryToEdit});
 
   @override
   State<AddEntryDialog> createState() => _AddEntryDialogState();
@@ -23,14 +19,13 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
   final _costController = TextEditingController();
   Category? _selectedCategory;
   bool _isLoading = false;
-  bool get _isEditing => widget.entryToEdit != null; // <-- ADDED: Helper getter
+  bool get _isEditing => widget.entryToEdit != null;
 
   @override
   void initState() {
     super.initState();
 
     if (_isEditing) {
-      // If editing, pre-fill the fields
       final entry = widget.entryToEdit!;
       _itemController.text = entry.itemName;
       _costController.text = entry.cost.toString();
@@ -39,7 +34,6 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
         orElse: () => widget.categories.first,
       );
     } else {
-      // Default to the first category if creating new
       if (widget.categories.isNotEmpty) {
         _selectedCategory = widget.categories.first;
       }
@@ -63,32 +57,28 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
 
       try {
         if (_isEditing) {
-          // --- UPDATE LOGIC ---
           Map<String, dynamic> updatedData = {
             'itemName': itemName,
             'cost': cost,
             'categoryId': categoryId,
-            // We don't update the timestamp, as it was the creation date
           };
-          await FireBaseMethods()
-              .updateBudgetEntry(widget.entryToEdit!.id, updatedData);
+          await FireBaseMethods().updateBudgetEntry(
+            widget.entryToEdit!.id,
+            updatedData,
+          );
         } else {
-          // --- CREATE LOGIC (as before) ---
           await FireBaseMethods().addBudgetEntry(
             itemName: itemName,
             cost: cost,
             categoryId: categoryId,
           );
         }
-
-        // Close the dialog on success
         if (mounted) Navigator.of(context).pop();
       } catch (e) {
         setState(() => _isLoading = false);
-        // Show an error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save entry: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save entry: $e')));
       }
     }
   }
@@ -112,10 +102,13 @@ class _AddEntryDialogState extends State<AddEntryDialog> {
               ),
               TextFormField(
                 controller: _costController,
-                decoration:
-                    const InputDecoration(labelText: 'Cost', prefixText: '₹'),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Cost',
+                  prefixText: '₹',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a cost';

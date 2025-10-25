@@ -28,9 +28,7 @@ class _HomePageState extends State<HomePage> {
   User? _user = FirebaseAuth.instance.currentUser;
   StreamSubscription<User?>? _authSubscription;
 
-  // --- REMOVED _totalSpentThisMonth ---
   double _monthlyBudget = 0.0;
-  // REMOVED: StreamSubscription<List<BudgetEntry>>? _monthlySpendingSubscription;
   final String _currentYearMonth = DateFormat('yyyy-MM').format(DateTime.now());
   final DateTime _now = DateTime.now();
 
@@ -43,22 +41,24 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _updateStreamsAndBudget(_user); // Initial setup
 
-    _authSubscription =
-        FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      // Check if mounted before calling setState to avoid errors if disposed
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((
+      User? user,
+    ) {
       if (mounted) {
-        setState(() { _user = user; });
+        setState(() {
+          _user = user;
+        });
         _updateStreamsAndBudget(user); // Update on auth change
       }
-      if (user != null) { print("Auth state changed: User is logged in."); }
-      else { print("Auth state changed: User is logged out."); }
+      if (user != null) {
+        print("Auth state changed: User is logged in.");
+      } else {
+        print("Auth state changed: User is logged out.");
+      }
     });
   }
 
-  /// Helper method to initialize/update streams AND load budget
   void _updateStreamsAndBudget(User? user) {
-    // REMOVED: _monthlySpendingSubscription?.cancel();
-
     if (user == null) {
       _categoryStream = Stream.value(<Category>[]).asBroadcastStream();
       _entryStream = Stream.value(<BudgetEntry>[]).asBroadcastStream();
@@ -66,22 +66,19 @@ class _HomePageState extends State<HomePage> {
       if (mounted) {
         setState(() {
           _monthlyBudget = 0.0;
-          // REMOVED: _totalSpentThisMonth = 0.0;
         });
       }
     } else {
       _categoryStream = FireBaseMethods().getCategories();
       _entryStream = FireBaseMethods().getBudgetEntries();
-      _monthlyEntryStream = FireBaseMethods().getBudgetEntriesForMonth(_now.year, _now.month);
+      _monthlyEntryStream = FireBaseMethods().getBudgetEntriesForMonth(
+        _now.year,
+        _now.month,
+      );
       _loadBudget();
-
-      // REMOVED: _monthlySpendingSubscription = _monthlyEntryStream!.listen((entries) {
-      // REMOVED:  _calculateSpending(entries);
-      // REMOVED: });
     }
   }
 
-  /// Fetches the budget for the current month
   Future<void> _loadBudget() async {
     final budget = await FireBaseMethods().getMonthlyBudget(_currentYearMonth);
     if (mounted) {
@@ -91,18 +88,17 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // REMOVED: _calculateSpending method
-
   @override
   void dispose() {
     _authSubscription?.cancel();
-    // REMOVED: _monthlySpendingSubscription?.cancel();
+
     super.dispose();
   }
 
-  /// Process data for the pie chart (uses monthly entries)
   List<PieChartData> _prepareChartData(
-      List<BudgetEntry> monthlyEntries, List<Category> categories) {
+    List<BudgetEntry> monthlyEntries,
+    List<Category> categories,
+  ) {
     Map<String, double> categoryTotals = {};
     Map<String, Color> categoryColors = {};
     for (var category in categories) {
@@ -127,20 +123,15 @@ class _HomePageState extends State<HomePage> {
         .toList();
   }
 
-  /// Shows the Add/Edit Entry Dialog
   void _showAddEntry(List<Category> categories, {BudgetEntry? entryToEdit}) {
     showDialog(
       context: context,
       builder: (context) {
-        return AddEntryDialog(
-          categories: categories,
-          entryToEdit: entryToEdit,
-        );
+        return AddEntryDialog(categories: categories, entryToEdit: entryToEdit);
       },
     );
   }
 
-  /// Shows Set Budget Dialog
   void _showSetBudgetDialog() {
     showDialog(
       context: context,
@@ -170,11 +161,13 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton:
-          _user == null ? null : StreamBuilder<List<Category>>(
+      floatingActionButton: _user == null
+          ? null
+          : StreamBuilder<List<Category>>(
               stream: _categoryStream,
               builder: (context, categorySnapshot) {
-                if (!categorySnapshot.hasData || categorySnapshot.data!.isEmpty) {
+                if (!categorySnapshot.hasData ||
+                    categorySnapshot.data!.isEmpty) {
                   return SizedBox();
                 }
                 return FloatingActionButton(
@@ -217,26 +210,30 @@ class _HomePageState extends State<HomePage> {
             return StreamBuilder<List<BudgetEntry>>(
               stream: _monthlyEntryStream, // Stream for MONTHLY entries
               builder: (context, monthlyEntrySnapshot) {
-
-                if (categorySnapshot.connectionState == ConnectionState.waiting ||
+                if (categorySnapshot.connectionState ==
+                        ConnectionState.waiting ||
                     entrySnapshot.connectionState == ConnectionState.waiting ||
-                    monthlyEntrySnapshot.connectionState == ConnectionState.waiting) {
+                    monthlyEntrySnapshot.connectionState ==
+                        ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 }
-                if (!categorySnapshot.hasData || categorySnapshot.data!.isEmpty) {
-                  return Center( /* ... "add category" message ... */);
+                if (!categorySnapshot.hasData ||
+                    categorySnapshot.data!.isEmpty) {
+                  return Center(/* ... "add category" message ... */);
                 }
 
                 final categories = categorySnapshot.data!;
-                final allEntries = entrySnapshot.hasData ? entrySnapshot.data! : <BudgetEntry>[];
-                final monthlyEntries = monthlyEntrySnapshot.hasData ? monthlyEntrySnapshot.data! : <BudgetEntry>[];
+                final allEntries = entrySnapshot.hasData
+                    ? entrySnapshot.data!
+                    : <BudgetEntry>[];
+                final monthlyEntries = monthlyEntrySnapshot.hasData
+                    ? monthlyEntrySnapshot.data!
+                    : <BudgetEntry>[];
 
-                // --- CALCULATION MOVED HERE ---
                 double totalSpentThisMonth = 0.0;
                 for (var entry in monthlyEntries) {
                   totalSpentThisMonth += entry.cost;
                 }
-                // --- END OF MOVE ---
 
                 final categoryMap = {for (var cat in categories) cat.id: cat};
                 final chartData = _prepareChartData(monthlyEntries, categories);
@@ -244,16 +241,17 @@ class _HomePageState extends State<HomePage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // --- Pass calculated value ---
                     _BudgetSummaryCard(
                       totalBudget: _monthlyBudget,
                       totalSpent: totalSpentThisMonth, // Pass calculated value
                     ),
-                    // --- End ---
 
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text('Spending Summary (This Month)', style: Theme.of(context).textTheme.headlineSmall),
+                      child: Text(
+                        'Spending Summary (This Month)',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
                     SizedBox(
                       height: 220,
@@ -263,31 +261,54 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text('All Entries', style: Theme.of(context).textTheme.headlineSmall),
+                      child: Text(
+                        'All Entries',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
                     ),
                     Expanded(
                       child: allEntries.isEmpty
-                          ? Center(child: Text('No entries yet. Tap + to add one!'))
+                          ? Center(
+                              child: Text('No entries yet. Tap + to add one!'),
+                            )
                           : ListView.builder(
                               itemCount: allEntries.length,
                               itemBuilder: (context, index) {
                                 final entry = allEntries[index];
-                                final category = categoryMap[entry.categoryId] ?? Category(id: 'unknown', name: 'Unknown', color: Colors.grey);
+                                final category =
+                                    categoryMap[entry.categoryId] ??
+                                    Category(
+                                      id: 'unknown',
+                                      name: 'Unknown',
+                                      color: Colors.grey,
+                                    );
                                 return BudgetEntryTile(
                                   entry: entry,
                                   category: category,
-                                  onTap: () => _showAddEntry(categories, entryToEdit: entry),
+                                  onTap: () => _showAddEntry(
+                                    categories,
+                                    entryToEdit: entry,
+                                  ),
                                   onDismissed: () {
-                                    FireBaseMethods().deleteBudgetEntry(entry.id);
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content: Text('Deleted ${entry.itemName}'),
-                                      action: SnackBarAction(
-                                        label: 'Undo',
-                                        onPressed: () => FireBaseMethods().addBudgetEntry(
-                                          itemName: entry.itemName, cost: entry.cost, categoryId: entry.categoryId,
+                                    FireBaseMethods().deleteBudgetEntry(
+                                      entry.id,
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Deleted ${entry.itemName}',
+                                        ),
+                                        action: SnackBarAction(
+                                          label: 'Undo',
+                                          onPressed: () =>
+                                              FireBaseMethods().addBudgetEntry(
+                                                itemName: entry.itemName,
+                                                cost: entry.cost,
+                                                categoryId: entry.categoryId,
+                                              ),
                                         ),
                                       ),
-                                    ));
+                                    );
                                   },
                                 );
                               },
@@ -304,12 +325,14 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// --- Budget Summary Widget (Unchanged) ---
 class _BudgetSummaryCard extends StatelessWidget {
   final double totalBudget;
   final double totalSpent;
 
-  const _BudgetSummaryCard({required this.totalBudget, required this.totalSpent});
+  const _BudgetSummaryCard({
+    required this.totalBudget,
+    required this.totalSpent,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -325,41 +348,66 @@ class _BudgetSummaryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Budget for $monthName', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[700])),
+            Text(
+              'Budget for $monthName',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
+            ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildBudgetItem('Total Budget', totalBudget, context),
                 _buildBudgetItem('Spent', totalSpent, context, isSpent: true),
-                _buildBudgetItem('Remaining', remaining, context, colorOverride: overBudget ? Colors.redAccent : Colors.green),
+                _buildBudgetItem(
+                  'Remaining',
+                  remaining,
+                  context,
+                  colorOverride: overBudget ? Colors.redAccent : Colors.green,
+                ),
               ],
             ),
             if (totalBudget > 0) ...[
               const SizedBox(height: 10),
               LinearProgressIndicator(
-                value: totalBudget == 0 ? 0 : (totalSpent / totalBudget).clamp(0.0, 1.0),
+                value: totalBudget == 0
+                    ? 0
+                    : (totalSpent / totalBudget).clamp(0.0, 1.0),
                 backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(overBudget ? Colors.redAccent : Colors.blue),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  overBudget ? Colors.redAccent : Colors.blue,
+                ),
                 minHeight: 10,
                 borderRadius: BorderRadius.circular(5),
               ),
-            ]
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBudgetItem(String label, double amount, BuildContext context, {bool isSpent = false, Color? colorOverride}) {
+  Widget _buildBudgetItem(
+    String label,
+    double amount,
+    BuildContext context, {
+    bool isSpent = false,
+    Color? colorOverride,
+  }) {
     final amountStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: colorOverride ?? (isSpent ? Colors.redAccent : null),
-        );
+      fontWeight: FontWeight.bold,
+      color: colorOverride ?? (isSpent ? Colors.redAccent : null),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+        ),
         const SizedBox(height: 4),
         Text('₹${amount.toStringAsFixed(0)}', style: amountStyle),
       ],

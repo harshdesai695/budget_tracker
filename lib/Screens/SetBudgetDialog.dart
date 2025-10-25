@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class SetBudgetDialog extends StatefulWidget {
-  final String currentYearMonth; // Format "YYYY-MM"
+  final String currentYearMonth;
   final double initialBudget;
 
   const SetBudgetDialog({
@@ -24,9 +24,8 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill with the current budget if it exists
     if (widget.initialBudget > 0) {
-      _budgetController.text = widget.initialBudget.toStringAsFixed(0); // Show as whole number
+      _budgetController.text = widget.initialBudget.toStringAsFixed(0);
     }
   }
 
@@ -43,7 +42,7 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
 
       try {
         await FireBaseMethods().setMonthlyBudget(widget.currentYearMonth, budget);
-        if (mounted) Navigator.of(context).pop(); // Close dialog on success
+        if (mounted) Navigator.of(context).pop();
       } catch (e) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -55,7 +54,6 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Format month name (e.g., "October 2025")
     final monthName = DateFormat('MMMM yyyy').format(
       DateFormat('yyyy-MM').parse(widget.currentYearMonth)
     );
@@ -67,7 +65,7 @@ class _SetBudgetDialogState extends State<SetBudgetDialog> {
         child: TextFormField(
           controller: _budgetController,
           decoration: const InputDecoration(labelText: 'Monthly Budget', prefixText: '₹'),
-          keyboardType: const TextInputType.numberWithOptions(decimal: false), // Allow only whole numbers
+          keyboardType: const TextInputType.numberWithOptions(decimal: false),
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter a budget amount';

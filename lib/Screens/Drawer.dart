@@ -28,12 +28,17 @@ class SideDrawer extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 35,
-                        backgroundImage: (user.photoURL != null
-                                ? NetworkImage(user.photoURL!)
-                                : null)
-                            as ImageProvider?,
+                        backgroundImage:
+                            (user.photoURL != null
+                                    ? NetworkImage(user.photoURL!)
+                                    : null)
+                                as ImageProvider?,
                         child: (user.photoURL == null)
-                            ? const Icon(Icons.person, size: 40, color: Colors.white)
+                            ? const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                       const SizedBox(height: 10),
@@ -62,14 +67,15 @@ class SideDrawer extends StatelessWidget {
             title: Text('Manage Categories'),
             onTap: () {
               Navigator.of(context).pop(); // Close drawer
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => CategoryScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (context) => CategoryScreen()));
             },
           ),
-          // --- ADDED THIS TILE ---
           ListTile(
-            leading: Icon(Icons.calendar_month_outlined), // Changed icon slightly
+            leading: Icon(
+              Icons.calendar_month_outlined,
+            ), // Changed icon slightly
             title: Text('Monthly Summary'),
             onTap: () {
               Navigator.of(context).pop(); // Close drawer
@@ -78,9 +84,7 @@ class SideDrawer extends StatelessWidget {
               );
             },
           ),
-          // --- END OF ADDED TILE ---
 
-          // Sign Out button logic
           if (user != null) ...[
             Divider(),
             ListTile(

@@ -14,18 +14,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
   final _nameController = TextEditingController();
   Color _selectedColor = Colors.blue; // Default color
 
-  /// Refactored to handle both Add and Edit
-  /// If [categoryToEdit] is null, it's in "Add" mode.
-  /// If [categoryToEdit] is provided, it's in "Edit" mode.
   void _showAddEditCategoryDialog({Category? categoryToEdit}) {
     final bool isEditing = categoryToEdit != null;
 
-    // Set initial values for the dialog
     if (isEditing) {
       _nameController.text = categoryToEdit.name;
       _selectedColor = categoryToEdit.color;
     } else {
-      // Reset for "Add" mode
       _nameController.clear();
       _selectedColor = Colors.blue;
     }
@@ -50,7 +45,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       autofocus: true,
                     ),
                     const SizedBox(height: 20),
-                    // --- THIS IS THE NEW COLOR PICKER ---
+
                     ColorPicker(
                       pickerColor: _selectedColor,
                       onColorChanged: (color) {
@@ -58,7 +53,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       },
                       pickerAreaHeightPercent: 0.8,
                     ),
-                    // --- END OF NEW COLOR PICKER ---
                   ],
                 ),
               ),
@@ -71,14 +65,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
                   onPressed: () async {
                     if (_nameController.text.isNotEmpty) {
                       if (isEditing) {
-                        // --- UPDATE LOGIC ---
                         await FireBaseMethods().updateCategory(
                           categoryToEdit.id,
                           _nameController.text,
                           _selectedColor,
                         );
                       } else {
-                        // --- ADD LOGIC ---
                         await FireBaseMethods().addNewCategory(
                           _nameController.text,
                           _selectedColor,
@@ -97,7 +89,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-  /// Shows a confirmation dialog before deleting
   void _showDeleteConfirmDialog(Category category) {
     showDialog(
       context: context,
@@ -153,27 +144,23 @@ class _CategoryScreenState extends State<CategoryScreen> {
               return ListTile(
                 leading: Icon(Icons.circle, color: category.color),
                 title: Text(category.name),
-                // --- ADDED EDIT AND DELETE BUTTONS ---
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.grey),
                       onPressed: () {
-                        // Call the dialog in "Edit" mode
                         _showAddEditCategoryDialog(categoryToEdit: category);
                       },
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.redAccent),
                       onPressed: () {
-                        // Call the delete confirmation
                         _showDeleteConfirmDialog(category);
                       },
                     ),
                   ],
                 ),
-                // --- END OF ADDED BUTTONS ---
               );
             },
           );

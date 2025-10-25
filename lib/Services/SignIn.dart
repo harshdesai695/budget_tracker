@@ -19,12 +19,10 @@ class SignInMethods {
       final AuthCredential authCredential = GoogleAuthProvider.credential(
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken);
-      // Getting users credential
       UserCredential result =
           await FireBaseMethods.auth.signInWithCredential(authCredential);
       User? user = result.user;
 
-      // Check if user is null before proceeding
       if (user == null) return;
 
       final snapshot = await FirebaseFirestore.instance
@@ -33,17 +31,13 @@ class SignInMethods {
           .get();
           
       if (!snapshot.exists) {
-        // Use null-coalescing (??) to provide default values
         await FireBaseMethods().addUserdata(
           email: user.email ?? '', 
           username: user.displayName ?? 'New User', 
           profileUrl: user.photoURL ?? '', 
         );
         
-        // --- ADDED THIS LINE ---
-        // Create the default categories for the new user
         await FireBaseMethods().addDefaultCategories();
-        // --- END OF ADDED LINE ---
       }
     }
   }

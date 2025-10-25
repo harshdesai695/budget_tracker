@@ -15,7 +15,6 @@ class BudgetEntry {
     required this.timestamp,
   });
 
-  // Factory to create a BudgetEntry from a Firestore document
   factory BudgetEntry.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return BudgetEntry(
@@ -27,7 +26,6 @@ class BudgetEntry {
     );
   }
 
-  // Method to convert a BudgetEntry to a Map for Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'itemName': itemName,

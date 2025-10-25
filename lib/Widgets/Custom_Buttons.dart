@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
 class NormalButton extends StatelessWidget {
@@ -63,7 +61,7 @@ class CustomIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
   return MaterialButton(
       onPressed: onPressed,
-      shape: const CircleBorder(), // Ensure circular shape
+      shape: const CircleBorder(),
       color: backgroundColor,
       padding: const EdgeInsets.all(20.0),
   child: Icon(icon, color: Colors.white),

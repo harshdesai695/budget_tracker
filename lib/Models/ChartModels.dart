@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart'; // Import for Color
-
+import 'package:flutter/material.dart'; 
 class PieChartData {
-  PieChartData(this.category, this.sales, this.color); // <-- MODIFIED
+  PieChartData(this.category, this.sales, this.color); 
   final String category;
   final num sales;
-  final Color color; // <-- ADDED
+  final Color color; 
 }
 
 class DonutChartData {
